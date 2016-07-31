@@ -1,11 +1,67 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta charset="utf-8">
+    <title>Mean Stack</title>
+    <!-- agregamos libreria angular -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+    <!-- agregamos libreria ui-router -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+    <!-- la app de angular -->
+    <script src='app.js'></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" media="screen" title="no title" charset="utf-8">
   </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+  <!-- inicializamos la app -->
+  <body ng-app="heyNews">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+          <!-- ui-view es donde se van a cargar las rutas -->
+          <ui-view></ui-view>
+        </div>
+      </div>
+    </div>
   </body>
+  <script type="text/ng-template" id="/home.html">
+    <div class="page-header">
+      <h1>Ey News</h1>
+    </div>
+    <div ng-repeat="post in posts | orderBy: '-upvotes'">
+      <span ng-click="addVote(post)" class="glyphicon glyphicon-chevron-up"></span>
+      <a ng-show='post.link' href='{{post.link}}'>{{ post.title }}</a>
+      <a href='#/posts/{{$index}}'>View post</a>
+      <span ng-hide='post.link'>{{ post.title }}</span>
+      - upvotes: {{ post.upvotes }}
+    </div>
+    <form ng-submit="addPost()" class="form">
+      <div class="form-group">
+        <label for="title">Titulo:</label>
+        <input class="form-control" type="text" id="title" name="title" ng-model="title">
+      </div>
+      <div class="form-group">
+        <label for="link">Link:</label>
+        <input class="form-control" type="text" id="link" name="link" ng-model="link">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Crear nuevo post</button>
+    </form>
+  </script>
+  <script type="text/ng-template" id="/posts.html">
+    <div class="page-header">
+      <h1>{{post.title}}</h1>
+    </div>
+    <div ng-repeat="comment in post.comments | orderBy: '-upvotes'">
+      <span ng-click="upVoteComment(comment)">^</span>
+      {{comment.author}}
+      {{ comment.body }}
+      - upvotes: {{ comment.upvotes }}
+    </div>
+    <form ng-submit='addComment()'>
+      <div class="form-group">
+        <label for="body">Comentario:</label>
+        <input type="text" ng-model="body" name="body" id="body" class="form-control"/>
+      </div>
+      <button type="submit" class="btn btn-default" />Enviar comentario</button>
+    </form>
+  </script>
 </html>
