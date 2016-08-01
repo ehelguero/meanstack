@@ -29,7 +29,7 @@
     <div ng-repeat="post in posts | orderBy: '-upvotes'">
       <span ng-click="addVote(post)" class="glyphicon glyphicon-chevron-up"></span>
       <a ng-show='post.link' href='{{post.link}}'>{{ post.title }}</a>
-      <a href='#/posts/{{$index}}'>View post</a>
+      <a href='#/posts/{{post._id}}'>View post</a>
       <span ng-hide='post.link'>{{ post.title }}</span>
       - upvotes: {{ post.upvotes }}
     </div>

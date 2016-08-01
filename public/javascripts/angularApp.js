@@ -14,45 +14,46 @@ angular.module('heyNews', ['ui.router'])
   .state('posts', {
     url: '/posts/{id}',
     templateUrl: '/posts.html',
-    controller: 'PostsCtrl'
+    controller: 'PostsCtrl',
+    resolve: {
+      post: ['$stateParams','posts', function($stateParams,posts){
+        return posts.get($stateParams.id);
+      }]
+    }
   });
 
   $urlRouterProvider.otherwise('home');
 }])
 .controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
-  $scope.test = 'Hola mundo!';
   $scope.posts = posts.posts;
 
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === ''){
       return;
     }
-    $scope.posts.push({
+    posts.create({
       title: $scope.title,
       link: $scope.link,
-      upvotes: 0,
-      comments: [
-        { author: 'Joe', body: 'Cool post!', upvotes: 0},
-        { author: 'Jay', body: 'Cool ', upvotes: 0}
-      ]
-    });
+    })
     $scope.title = '';
     $scope.link = '';
   }
 
   $scope.addVote = function(post){
-    post.upvotes += 1;
+    posts.upvote(post);
   }
 }])
-.controller('PostsCtrl', ['$scope','$stateParams','posts',function($scope,$stateParams,posts){
-  $scope.post = posts.posts[$stateParams.id];
+.controller('PostsCtrl', ['$scope','posts', 'post', function($scope,posts, post){
+  $scope.post = post;
   $scope.addComment = function(){
     if(!$scope.body || $scope.body === '' ) { return; }
-    $scope.post.comments.push({
+    posts.addComment({
       body: $scope.body,
       author: 'user',
       upvotes: 0,
-    })
+    }).success(function(comment){
+      $scope.post.comment.push(comment)
+    });
 
     $scope.body = '';
   };
@@ -67,8 +68,31 @@ angular.module('heyNews', ['ui.router'])
 
   o.getAll = function() {
     return $http.get('/posts').success(function(data){
+      // makes a copy of the data to o.posts
       angular.copy(data, o.posts);
     })
+  };
+
+  o.create = function(post){
+      return $http.post('/posts', post).success(function(data){
+        o.posts.push(data);
+      })
+  }
+
+  o.upvote = function(post){
+    return $http.put('/posts/' + post._id + '/upvote').success(function(data){
+      post.upvotes += 1;
+    });
+  }
+
+  o.get = function(id){
+    return $http.get('/posts/' + id).then(function(res){
+      return res.data;
+    })
+  };
+
+  o.addComment = function(id, comment){
+    return $http.post('/posts/'+id+'/comments', comment)
   }
 
   return o;
