@@ -45,20 +45,22 @@ angular.module('heyNews', ['ui.router'])
 }])
 .controller('PostsCtrl', ['$scope','posts', 'post', function($scope,posts, post){
   $scope.post = post;
+
   $scope.addComment = function(){
     if(!$scope.body || $scope.body === '' ) { return; }
-    posts.addComment({
+    posts.addComment(post._id,{
       body: $scope.body,
       author: 'user',
       upvotes: 0,
     }).success(function(comment){
-      $scope.post.comment.push(comment)
+      $scope.post.comments.push(comment)
     });
 
     $scope.body = '';
   };
+
   $scope.upVoteComment = function(comment){
-    comment.upvotes += 1;
+    posts.upvoteComment(post._id, comment);
   }
 }])
 .factory('posts', ['$http', function($http){
@@ -92,8 +94,15 @@ angular.module('heyNews', ['ui.router'])
   };
 
   o.addComment = function(id, comment){
-    return $http.post('/posts/'+id+'/comments', comment)
+    return $http.post('/posts/' + id + '/comments', comment)
   }
+
+  o.upvoteComment = function(id, comment){
+      return $http.put('/posts/' + id + '/comments/' + comment._id + '/upvote')
+      .success(function(data){
+        comment.upvotes += 1;
+      });
+  };
 
   return o;
 }]);
