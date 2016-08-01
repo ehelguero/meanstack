@@ -55,10 +55,14 @@ angular.module('heyNews', ['ui.router'])
     comment.upvotes += 1;
   }
 }])
-.factory('posts', [function(){
+.factory('posts', ['$http', function($http){
   var o = {
     posts: []
   };
+
+  // $http.get('/posts', function(err, data){
+  //   console.log(data);
+  // })
 
   return o;
 }]);
